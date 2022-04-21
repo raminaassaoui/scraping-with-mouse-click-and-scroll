@@ -1,0 +1,49 @@
+
+import time
+import bs4
+import pandas as pd
+from selenium import webdriver
+import selenium
+import re
+
+dt = pd.DataFrame()
+driver = webdriver.Firefox()
+
+
+
+driver.get('https://www.ebuyclub.com/avis/sephora-683')
+time.sleep(0.5)
+
+
+for i in range(1,500):
+    driver.execute_script(f"window.scrollTo(0, 1080*{i})") 
+    time.sleep(0.1)
+    
+    
+html = driver.execute_script('return document.documentElement.outerHTML')
+
+
+soup = bs4.BeautifulSoup(html, 'html.parser')  # type of parsing here is by tag or balise type href a p div etc..
+
+
+for container in soup.find_all(True, {'class':['avis']}): #in the page of index 17 use [120:]
+    # print(jobs.prettify())
+    # print("####################################")
+
+    try:
+        texte = container.find(class_="avis-texte").text.strip()
+    except Exception as e:
+        texte = None
+        #print('texte:', texte)
+    
+    try:
+        note = container.find(class_="note").text.strip()
+    except Exception as e:
+        note = None
+        #print('note:', note)
+    
+
+    row_dt = pd.DataFrame([[texte, note]])
+    dt = dt.append(row_dt, ignore_index=True)
+    
+    
